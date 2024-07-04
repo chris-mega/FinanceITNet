@@ -34,6 +34,12 @@ const defaultColumns = [
     key: "date",
     inputType: "date",
     editable: true,
+    defaultSortOrder: "ascend",
+    sorter: (a, b) => {
+      const aDate = new Date(a.date);
+      const bDate = new Date(b.date);
+      return aDate - bDate;
+    },
     render: (_, { date }) => <>{dayjs(date).format("MMM DD, YYYY")}</>,
   },
 ];
