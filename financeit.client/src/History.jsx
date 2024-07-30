@@ -33,21 +33,30 @@ const data = [
   },
 ];
 
-const threeMonths = (currMonth) => {
-  return new Array(3).fill(null).map((_, i) => {
-    const monthIndex = (currMonth - i + 12) % 12;
-    return {
-      label: months[monthIndex],
-      key: monthIndex,
-      children: monthIndex === currMonth ? <Sheet data={data} /> : <p>...</p>,
-      closable: false,
-    };
-  });
-};
-
-const initialItems = threeMonths(dayjs().month());
+const currMonth = dayjs().month();
+const currYear = dayjs().year();
 
 const History = () => {
+  const [numYears, setNumYears] = useState(0);
+
+  const threeMonths = (startMonth, year) => {
+    var tempNumYears = 0;
+    return new Array(3).fill(null).map((_, i) => {
+      const monthIndex = (startMonth - i + 12) % 12;
+      if (monthIndex === 11) {
+        setNumYears(numYears + 1);
+        tempNumYears += 1;
+      }
+      return {
+        label: `${months[monthIndex]} '${(year - tempNumYears) % 100}`,
+        key: `${year - tempNumYears}-${monthIndex}`,
+        children: monthIndex === currMonth ? <Sheet data={data} /> : <p>...</p>,
+        closable: false,
+      };
+    });
+  };
+  const initialItems = threeMonths(currMonth, currYear);
+
   const [items, setItems] = useState(initialItems);
   const [activeKey, setActiveKey] = useState(initialItems[0].key);
 
@@ -56,8 +65,11 @@ const History = () => {
   };
 
   const add = () => {
-    const lastMonth = items[items.length - 1].key;
-    const newPanes = [...items, ...threeMonths(lastMonth - 1)];
+    const lastMonth = items[items.length - 1].key.split("-")[1];
+    const newPanes = [
+      ...items,
+      ...threeMonths(lastMonth - 1, currYear - numYears),
+    ];
     setItems(newPanes);
   };
 
